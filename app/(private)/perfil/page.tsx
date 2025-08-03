@@ -2,18 +2,65 @@
 
 import { useEffect, useState } from 'react'
 import {
-  Trophy, Medal, CupSoda, Truck, BarChart2, TrendingUp,
+  Trophy, Medal, BarChart2, TrendingUp,
   Instagram, Youtube, Facebook, Twitch, Twitter, Star
 } from 'lucide-react'
 import Image from 'next/image'
-// import { url } from 'inspector' // Não precisas disto, mas mantive se quiseres voltar
+
+// Tipagens definidas para eliminar uso de 'any'
+type Estatisticas = {
+  cargas: number
+  km: number
+}
+
+type Viagem = {
+  id: string
+  camiao: string
+  origem: string
+  destino: string
+  distancia: number
+  dano: number
+  velocidadeMax: number
+  data: string
+}
+
+type Titulo = {
+  id: string
+  titulo: string
+}
+
+type SocialLinks = {
+  youtube?: string
+  twitch?: string
+  instagram?: string
+  facebook?: string
+  twitter?: string
+}
+
+type PerfilData = {
+  name: string
+  avatar: string
+  estatisticas: {
+    ets2: Estatisticas
+    ats: Estatisticas
+    total: Estatisticas
+  }
+  hoje: Estatisticas
+  ranking: {
+    posicao: number
+  }
+  medalhas: Titulo[]
+  trofeus: Titulo[]
+  tacas: Titulo[]
+  ultimas: Viagem[]
+  socials: SocialLinks
+}
 
 export default function Perfil() {
-  const [data, setData] = useState<any>(null)
+  const [data, setData] = useState<PerfilData | null>(null)
   const [loading, setLoading] = useState(true)
   const [tab, setTab] = useState<'ETS2' | 'ATS' | 'GERAL'>('ETS2')
 
-  // TAÇAS PERSONALIZADAS — mantidas como pediste
   const tacasManuais = [
     {
       id: '1',
@@ -26,7 +73,7 @@ export default function Perfil() {
       nome: 'Taça De Prata',
       ano: 2024,
       imagem: '/taca-prata.png',
-    }
+    },
   ]
 
   useEffect(() => {
@@ -67,8 +114,6 @@ export default function Perfil() {
 
   return (
     <div className="max-w-6xl mx-auto mt-10 p-4 space-y-10">
-
-      {/* HEADER */}
       <div className="flex items-center gap-6 flex-wrap">
         <Image
           src={data.avatar || '/default.png'}
@@ -80,8 +125,8 @@ export default function Perfil() {
         <div>
           <h1 className="text-3xl font-bold text-white">Perfil de {data.name}</h1>
           <div className="flex gap-3 mt-2">
-            {redes.map((r: any, i: number) => (
-              <a key={i} href={r.url} target="_blank" aria-label={`Link para ${r.url}`} className="text-white hover:text-blue-400">
+            {redes.map((r, i) => (
+              <a key={i} href={r.url} target="_blank" rel="noopener noreferrer" aria-label={`Link para ${r.url}`} className="text-white hover:text-blue-400">
                 {r.icon}
               </a>
             ))}
@@ -89,17 +134,14 @@ export default function Perfil() {
         </div>
       </div>
 
-      {/* ESTATÍSTICAS */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-slate-800 rounded-xl shadow p-4">
           <div className="mb-4 flex gap-2">
             {['ETS2', 'ATS', 'GERAL'].map((value) => (
               <button
                 key={value}
-                onClick={() => setTab(value as any)}
-                className={`px-4 py-1 rounded text-sm font-semibold ${
-                  tab === value ? 'bg-blue-500 text-white' : 'bg-slate-700 text-gray-300'
-                }`}
+                onClick={() => setTab(value as 'ETS2' | 'ATS' | 'GERAL')}
+                className={`px-4 py-1 rounded text-sm font-semibold ${tab === value ? 'bg-blue-500 text-white' : 'bg-slate-700 text-gray-300'}`}
               >
                 {value}
               </button>
@@ -127,13 +169,12 @@ export default function Perfil() {
         </div>
       </div>
 
-      {/* PRÉMIOS */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-slate-800 rounded-xl shadow p-4">
           <div className="flex gap-2 items-center mb-2"><Medal /> Medalhas</div>
           {data.medalhas.length ? (
             <ul className="list-disc ml-5 text-sm text-white">
-              {data.medalhas.map((m: any) => <li key={m.id}>{m.titulo}</li>)}
+              {data.medalhas.map((m) => <li key={m.id}>{m.titulo}</li>)}
             </ul>
           ) : (
             <p className="text-gray-500 text-sm">Sem medalhas</p>
@@ -144,27 +185,26 @@ export default function Perfil() {
           <div className="flex gap-2 items-center mb-2"><Star /> Troféus Especiais</div>
           {data.trofeus.length ? (
             <ul className="list-disc ml-5 text-sm text-white">
-              {data.trofeus.map((t: any) => <li key={t.id}>{t.titulo}</li>)}
+              {data.trofeus.map((t) => <li key={t.id}>{t.titulo}</li>)}
             </ul>
           ) : (
             <p className="text-gray-500 text-sm">Sem troféus</p>
           )}
         </div>
 
-        {/* TAÇAS MANUAIS */}
         <div className="bg-slate-800 rounded-xl shadow p-4">
           <div className="flex gap-2 items-center mb-4"><Trophy /> Taças</div>
           {tacasManuais.length ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               {tacasManuais.map((t) => (
                 <div key={t.id} className="text-center">
-                  <Image
-                    src={t.imagem}
-                    alt={t.nome}
-                    width={80}
-                    height={80}
-                    className="object-contain mx-auto drop-shadow-md"
-                  />
+                  <div className="w-20 h-20 mx-auto">
+                    <img
+                      src={t.imagem}
+                      alt={t.nome}
+                      className="w-full h-full object-contain drop-shadow-md"
+                    />
+                  </div>
                   <p className="text-sm text-white mt-2 font-semibold">{t.nome}</p>
                   <p className="text-xs text-gray-400">{t.ano}</p>
                 </div>
@@ -176,7 +216,6 @@ export default function Perfil() {
         </div>
       </div>
 
-      {/* VIAGENS */}
       <div>
         <h2 className="text-white text-xl font-bold mb-3">Últimas 10 Viagens</h2>
         <div className="overflow-x-auto rounded-lg shadow-sm border border-slate-700">
@@ -193,7 +232,7 @@ export default function Perfil() {
               </tr>
             </thead>
             <tbody>
-              {data.ultimas.map((v: any) => (
+              {data.ultimas.map((v) => (
                 <tr key={v.id} className="border-b border-slate-700">
                   <td className="p-2">{v.camiao}</td>
                   <td className="p-2">{v.origem}</td>
@@ -208,7 +247,6 @@ export default function Perfil() {
           </table>
         </div>
       </div>
-
     </div>
   )
 }
