@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/db'
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  const token = req.headers.get('authorization')?.replace('Bearer ', '')
+// ATENÇÃO: função SEM o segundo argumento! params vêm do URL diretamente.
+export async function GET(req: NextRequest) {
+  const url = new URL(req.url)
+  const id = url.pathname.split('/').pop()
 
+  const token = req.headers.get('authorization')?.replace('Bearer ', '')
   if (!token) {
     return NextResponse.json({ error: 'Token ausente' }, { status: 401 })
   }
@@ -20,26 +20,28 @@ export async function GET(
     return NextResponse.json({ error: 'Sessão inválida' }, { status: 403 })
   }
 
-  const userId = params.id
+  if (!id) {
+    return NextResponse.json({ error: 'ID inválido' }, { status: 400 })
+  }
 
-  const user = await prisma.user.findUnique({
-    where: { id: userId }
-  })
+  const user = await prisma.user.findUnique({ where: { id } })
 
   if (!user) {
     return NextResponse.json({ error: 'Utilizador não encontrado' }, { status: 404 })
   }
-  
+
+  // ... (restante lógica intacta — estatísticas, prémios, viagens, etc.)
+
   const socials = user.socials || {}
 
   const [ets2, ats] = await Promise.all([
     prisma.viagem.aggregate({
-      where: { motoristaId: user.id, game: 'ETS2' },
+      where: { motoristaId: id, game: 'ETS2' },
       _sum: { distancia: true },
       _count: { id: true }
     }),
     prisma.viagem.aggregate({
-      where: { motoristaId: user.id, game: 'ATS' },
+      where: { motoristaId: id, game: 'ATS' },
       _sum: { distancia: true },
       _count: { id: true }
     })
@@ -53,7 +55,7 @@ export async function GET(
 
   const hojeStats = await prisma.viagem.aggregate({
     where: {
-      motoristaId: user.id,
+      motoristaId: id,
       data: { gte: hojeData }
     },
     _sum: { distancia: true },
@@ -68,28 +70,28 @@ export async function GET(
     }
   })
 
-  const posicao = rankingViagens.findIndex(r => r.motoristaId === user.id) + 1
+  const posicao = rankingViagens.findIndex(r => r.motoristaId === id) + 1
 
   const [trofeus, medalhas, tacas] = await Promise.all([
     prisma.trofeu.findMany({
-      where: { userId: user.id },
+      where: { userId: id },
       select: { id: true, titulo: true, imagem: true },
       orderBy: { titulo: 'asc' }
     }),
     prisma.medalha.findMany({
-      where: { userId: user.id },
+      where: { userId: id },
       select: { id: true, titulo: true },
       orderBy: { titulo: 'asc' }
     }),
     prisma.taca.findMany({
-      where: { userId: user.id },
+      where: { userId: id },
       select: { id: true, titulo: true },
       orderBy: { titulo: 'asc' }
     })
   ])
 
   const ultimas = await prisma.viagem.findMany({
-    where: { motoristaId: user.id },
+    where: { motoristaId: id },
     orderBy: { data: 'desc' },
     take: 10,
     select: {
@@ -126,9 +128,7 @@ export async function GET(
       km: hojeStats._sum?.distancia ?? 0,
       cargas: hojeStats._count?.id ?? 0
     },
-    ranking: {
-      posicao
-    },
+    ranking: { posicao },
     trofeus,
     medalhas,
     tacas,
