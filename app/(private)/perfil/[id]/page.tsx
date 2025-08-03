@@ -1,41 +1,17 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import {
   Trophy, Medal, BarChart2, TrendingUp,
   Instagram, Youtube, Facebook, Twitch, Twitter, Star
 } from 'lucide-react'
 import Image from 'next/image'
 
-type Estatisticas = {
-  cargas: number
-  km: number
-}
-
-type Viagem = {
-  id: string
-  camiao: string
-  origem: string
-  destino: string
-  distancia: number
-  dano: number
-  velocidadeMax: number
-  data: string
-}
-
-type Titulo = {
-  id: string
-  titulo: string
-}
-
-type SocialLinks = {
-  youtube?: string
-  twitch?: string
-  instagram?: string
-  facebook?: string
-  twitter?: string
-}
+type Estatisticas = { cargas: number; km: number }
+type Viagem = { id: string; camiao: string; origem: string; destino: string; distancia: number; dano: number; velocidadeMax: number; data: string }
+type Titulo = { id: string; titulo: string }
+type SocialLinks = { youtube?: string; twitch?: string; instagram?: string; facebook?: string; twitter?: string }
 
 type PerfilData = {
   name: string
@@ -56,58 +32,35 @@ type PerfilData = {
   socials: SocialLinks
 }
 
-export default function Perfil() {
+export default function PerfilPublico() {
+  const params = useParams()
   const [data, setData] = useState<PerfilData | null>(null)
   const [loading, setLoading] = useState(true)
   const [tab, setTab] = useState<'ETS2' | 'ATS' | 'GERAL'>('GERAL')
-  const searchParams = useSearchParams()
 
-  const tacasManuais = [
-    {
-      id: '1',
-      nome: 'Taça de Ouro ATS',
-      ano: 2021,
-      imagem: '/taca-ouro.png',
-    },
-    {
-      id: '2',
-      nome: 'Taça De Prata',
-      ano: 2024,
-      imagem: '/taca-prata.png',
-    },
-  ]
-
-useEffect(() => {
-  const id = searchParams.get('id')
-
-  const fetchData = async () => {
-    try {
+  useEffect(() => {
+    const fetchData = async () => {
       const token = localStorage.getItem('token')
-      const url = id ? `/api/motorista/${id}` : '/api/perfil'
+      if (!token || !params.id) return setLoading(false)
 
-      const options: RequestInit = {}
-      if (!id && token) {
-        options.headers = {
-          Authorization: `Bearer ${token}`
-        }
+      try {
+        const res = await fetch(`/api/motorista/${params.id}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+        if (!res.ok) throw new Error('Erro ao buscar dados')
+        const json = await res.json()
+        setData(json)
+      } catch (err) {
+        console.error(err)
+      } finally {
+        setLoading(false)
       }
-
-      const res = await fetch(url, options)
-      if (!res.ok) throw new Error('Erro ao buscar dados')
-
-      const json = await res.json()
-      setData(json)
-    } catch (err) {
-      console.error(err)
-    } finally {
-      setLoading(false)
     }
-  }
 
-  fetchData()
-}, [searchParams])
+    fetchData()
+  }, [params.id])
 
-  if (loading) return <div className="text-white text-center p-10">Carregando perfil...</div>
+  if (loading) return <div className="text-white text-center p-10">A carregar perfil...</div>
   if (!data) return <div className="text-red-500 text-center p-10">Erro ao carregar perfil</div>
 
   const estat = {
@@ -128,7 +81,7 @@ useEffect(() => {
     <div className="max-w-6xl mx-auto mt-10 p-4 space-y-10">
       <div className="flex items-center gap-6 flex-wrap">
         <Image
-          src={data.avatar && data.avatar.trim() !== '' ? data.avatar : '/default.png'}
+          src={data.avatar || '/default.png'}
           width={100}
           height={100}
           className="rounded-xl shadow border"
@@ -206,22 +159,10 @@ useEffect(() => {
 
         <div className="bg-slate-800 rounded-xl shadow p-4">
           <div className="flex gap-2 items-center mb-4"><Trophy /> Taças</div>
-          {tacasManuais.length ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-              {tacasManuais.map((t) => (
-                <div key={t.id} className="text-center">
-                  <div className="w-20 h-20 mx-auto">
-                    <img
-                      src={t.imagem}
-                      alt={t.nome}
-                      className="w-full h-full object-contain drop-shadow-md"
-                    />
-                  </div>
-                  <p className="text-sm text-white mt-2 font-semibold">{t.nome}</p>
-                  <p className="text-xs text-gray-400">{t.ano}</p>
-                </div>
-              ))}
-            </div>
+          {data.tacas.length ? (
+            <ul className="list-disc ml-5 text-sm text-white">
+              {data.tacas.map((t) => <li key={t.id}>{t.titulo}</li>)}
+            </ul>
           ) : (
             <p className="text-gray-500 text-sm">Sem taças</p>
           )}

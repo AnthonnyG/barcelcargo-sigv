@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server'
 type RankingResult = {
   id: string
   name: string
+  avatar: string
   isApproved: boolean
   role: string
   totalKm: number
@@ -50,6 +51,7 @@ export async function GET(req: NextRequest) {
     return {
       id: user.id,
       name: user.name,
+      avatar: user.avatar || '/default-avatar.png',
       isApproved: user.isApproved,
       role: user.role,
       totalKm,

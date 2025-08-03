@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { Trophy } from 'lucide-react'
 import { FaTrophy, FaRoad, FaUser } from 'react-icons/fa'
 import Image from 'next/image'
+import Link from 'next/link'
 
 type RankingUser = {
   id: string
@@ -11,6 +12,7 @@ type RankingUser = {
   totalKm: number
   kmYear: number
   kmMonth: number
+  avatar?: string
 }
 
 export default function RankingPage() {
@@ -95,13 +97,10 @@ export default function RankingPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#10172A] to-[#0e1a2b] text-white p-6">
       <div className="max-w-5xl mx-auto space-y-6">
-
-        {/* Título */}
         <h1 className="text-3xl font-bold flex items-center gap-3">
           <Trophy size={28} /> Ranking de Motoristas
         </h1>
 
-        {/* Tabs */}
         <div className="flex gap-3">
           {(['monthly', 'yearly', 'general'] as const).map((key) => (
             <button
@@ -116,7 +115,6 @@ export default function RankingPage() {
           ))}
         </div>
 
-        {/* Filtros */}
         <div className="flex gap-4 items-center flex-wrap">
           {(tab === 'monthly' || tab === 'yearly') && (
             <>
@@ -147,7 +145,6 @@ export default function RankingPage() {
             </>
           )}
 
-          {/* Seletor de jogo apenas se NÃO for geral */}
           {tab !== 'general' && (
             <select
               value={game}
@@ -160,7 +157,6 @@ export default function RankingPage() {
           )}
         </div>
 
-        {/* Tabela de Ranking */}
         <div className="bg-[#1e293b] rounded-2xl shadow-lg p-6 overflow-x-auto">
           <h2 className="text-xl font-semibold flex items-center gap-2 mb-4">
             <FaTrophy className="text-yellow-500" /> Ranking {TABS[tab]}
@@ -190,7 +186,23 @@ export default function RankingPage() {
                   data.map((u, i) => (
                     <tr key={u.id} className="border-b border-gray-700">
                       <td className="py-2">{renderPosition(i)}</td>
-                      <td className="py-2">{u.name}</td>
+                      <td className="py-2">
+                        <div className="flex items-center gap-3">
+                          <Image
+                            src={u.avatar || '/default.png'}
+                            alt={u.name}
+                            width={28}
+                            height={28}
+                            className="rounded border border-gray-600 object-cover"
+                          />
+<Link
+  href={`/perfil/${u.id}`}
+  className="text-white hover:text-blue-400 font-medium"
+>
+  {u.name}
+</Link>
+                        </div>
+                      </td>
                       <td className="py-2 text-right">{getKm(u).toLocaleString()} km</td>
                     </tr>
                   ))
