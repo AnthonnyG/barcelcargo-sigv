@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/db'
 
-export const dynamic = 'force-dynamic'
-
 export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
@@ -18,7 +16,7 @@ export async function GET(
     include: { user: true }
   })
 
-  if (!session?.user) {
+  if (!session) {
     return NextResponse.json({ error: 'Sessão inválida' }, { status: 403 })
   }
 
@@ -31,7 +29,7 @@ export async function GET(
   if (!user) {
     return NextResponse.json({ error: 'Utilizador não encontrado' }, { status: 404 })
   }
-
+  
   const socials = user.socials || {}
 
   const [ets2, ats] = await Promise.all([
