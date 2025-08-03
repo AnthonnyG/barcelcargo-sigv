@@ -6,14 +6,14 @@ import {
   Instagram, Youtube, Facebook, Twitch, Twitter, Star
 } from 'lucide-react'
 import Image from 'next/image'
-import { url } from 'inspector'
+// import { url } from 'inspector' // Não precisas disto, mas mantive se quiseres voltar
 
 export default function Perfil() {
   const [data, setData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [tab, setTab] = useState<'ETS2' | 'ATS' | 'GERAL'>('ETS2')
 
-  // DECLARAÇÃO DAS TAÇAS MANUAIS
+  // TAÇAS PERSONALIZADAS — mantidas como pediste
   const tacasManuais = [
     {
       id: '1',
@@ -26,8 +26,7 @@ export default function Perfil() {
       nome: 'Taça De Prata',
       ano: 2024,
       imagem: '/taca-prata.png',
-    },
-    // Podes adicionar mais taças aqui
+    }
   ]
 
   useEffect(() => {
@@ -81,7 +80,7 @@ export default function Perfil() {
         <div>
           <h1 className="text-3xl font-bold text-white">Perfil de {data.name}</h1>
           <div className="flex gap-3 mt-2">
-            {redes.map((r, i) => (
+            {redes.map((r: any, i: number) => (
               <a key={i} href={r.url} target="_blank" aria-label={`Link para ${r.url}`} className="text-white hover:text-blue-400">
                 {r.icon}
               </a>
@@ -152,20 +151,20 @@ export default function Perfil() {
           )}
         </div>
 
-        {/* Taças manuais */}
+        {/* TAÇAS MANUAIS */}
         <div className="bg-slate-800 rounded-xl shadow p-4">
           <div className="flex gap-2 items-center mb-4"><Trophy /> Taças</div>
           {tacasManuais.length ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               {tacasManuais.map((t) => (
                 <div key={t.id} className="text-center">
-                  <div className="w-20 h-20 mx-auto">
-                    <img
-                      src={t.imagem}
-                      alt={t.nome}
-                      className="w-full h-full object-contain drop-shadow-md"
-                    />
-                  </div>
+                  <Image
+                    src={t.imagem}
+                    alt={t.nome}
+                    width={80}
+                    height={80}
+                    className="object-contain mx-auto drop-shadow-md"
+                  />
                   <p className="text-sm text-white mt-2 font-semibold">{t.nome}</p>
                   <p className="text-xs text-gray-400">{t.ano}</p>
                 </div>
