@@ -9,6 +9,18 @@ import {
 } from 'lucide-react'
 import Image from 'next/image'
 
+const TikTokIcon = () => (
+  <svg
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path d="M16.3 1C17.2 2.8 18.8 4.1 21 4.4V8.1C18.9 8 17.2 7.3 15.7 6.2V14.9C15.7 20.1 11.3 23 7.6 21.3C5.2 20.2 4.1 17.4 5.1 14.9C6 12.7 8.5 11.7 10.7 12.4V16.2C10.7 17.1 9.9 17.9 8.9 17.9C7.9 17.9 7.1 17.1 7.1 16.2C7.1 14.9 8.2 14.5 9.2 14.9V11C6.1 10.6 3.2 12.9 3 16.2C2.8 19.8 5.5 23 9.1 23C13.3 23 16.3 20 16.3 14.7V1H16.3Z" />
+  </svg>
+)
+
 type Estatisticas = { cargas: number; km: number }
 type Viagem = {
   id: string; camiao: string; origem: string; destino: string;
@@ -17,7 +29,7 @@ type Viagem = {
 type Titulo = { id: string; titulo: string; imagem?: string }
 type SocialLinks = {
   youtube?: string; twitch?: string; instagram?: string;
-  facebook?: string; twitter?: string
+  facebook?: string; twitter?: string; tiktok?: string
 }
 type PerfilData = {
   name: string; avatar: string; socials: SocialLinks;
@@ -76,7 +88,8 @@ export default function PerfilContent() {
     { icon: <Twitch size={18} />, url: data.socials.twitch },
     { icon: <Instagram size={18} />, url: data.socials.instagram },
     { icon: <Facebook size={18} />, url: data.socials.facebook },
-    { icon: <Twitter size={18} />, url: data.socials.twitter }
+    { icon: <Twitter size={18} />, url: data.socials.twitter },
+    { icon: <TikTokIcon />, url: data.socials.tiktok }
   ].filter(r => r.url)
 
   return (
