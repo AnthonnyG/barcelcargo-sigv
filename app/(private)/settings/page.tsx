@@ -46,10 +46,16 @@ export default function SettingsPage() {
     fetch('/api/user/settings', {
       headers: { Authorization: `Bearer ${token}` }
     })
-      .then(res => res.json())
+      .then(res => res.ok ? res.json() : null)
       .then(user => {
+        if (!user) return
         setData(user)
-        if (user.avatar) setAvatarPreview(user.avatar)
+
+        // ✅ Garante que preview seja absoluto se backend devolve caminho relativo
+        const isAbsolute = user.avatar?.startsWith('http')
+        setAvatarPreview(
+          isAbsolute ? user.avatar : `${window.location.origin}${user.avatar}`
+        )
       })
   }, [])
 
@@ -99,10 +105,10 @@ export default function SettingsPage() {
       })
 
       const result = await res.json()
-      if (!res.ok) throw new Error(result?.error)
+      if (!res.ok) throw new Error(result?.error || 'Erro desconhecido')
 
       setStatus('Alterações guardadas com sucesso!')
-    } catch {
+    } catch (err) {
       setStatus('Erro ao guardar alterações.')
     } finally {
       setSaving(false)
