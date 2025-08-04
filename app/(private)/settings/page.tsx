@@ -119,11 +119,11 @@ export default function SettingsPage() {
         {/* Avatar */}
         <div className="flex items-center gap-4">
           {avatarPreview ? (
-            <img
-              src={avatarPreview}
-              alt="Avatar"
-              className="w-20 h-20 rounded-md object-cover"
-            />
+<img
+  src={avatarPreview?.trim() || '/logo.jpg'}
+  alt="Avatar"
+  className="w-20 h-20 rounded-md object-cover border border-gray-600"
+/>
           ) : (
             <div className="w-20 h-20 rounded-md bg-gray-700 flex items-center justify-center text-sm">
               Sem avatar

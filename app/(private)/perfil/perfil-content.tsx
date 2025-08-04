@@ -96,7 +96,7 @@ export default function PerfilContent() {
     <div className="max-w-6xl mx-auto mt-10 p-4 space-y-10">
       <div className="flex items-center gap-6 flex-wrap">
         <Image
-          src={data.avatar?.trim() ? data.avatar : '/default.png'}
+          src={data.avatar?.trim() ? data.avatar : '/logo.jpg'}
           width={100}
           height={100}
           className="rounded-xl shadow border"

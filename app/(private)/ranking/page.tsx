@@ -65,17 +65,7 @@ export default function RankingPage() {
   const getKm = (u: RankingUser) =>
     tab === 'general' ? u.totalKm : tab === 'yearly' ? u.kmYear : u.kmMonth
 
-  const renderPosition = (i: number) => {
-    if (tab === 'monthly') {
-      if (i === 0)
-        return <Image src="/medal_ouro.png" alt="1º lugar" width={20} height={20} />
-      if (i === 1)
-        return <Image src="/medal_prata.png" alt="2º lugar" width={20} height={20} />
-      if (i === 2)
-        return <Image src="/medal_bronze.png" alt="3º lugar" width={20} height={20} />
-    }
-    return i + 1
-  }
+ const renderPosition = (i: number) => i + 1
 
   const TABS: Record<'monthly' | 'yearly' | 'general', string> = {
     monthly: 'Mensal',
@@ -157,6 +147,55 @@ export default function RankingPage() {
           )}
         </div>
 
+        {/* Taças do Ranking Anual */}
+        {tab === 'yearly' && data.length >= 3 && (
+          <div className="flex justify-center gap-10 mb-6">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="text-center">
+                <Image
+                  src={
+                    i === 0
+                      ? '/taca-ouro.png'
+                      : i === 1
+                      ? '/taca-prata.png'
+                      : '/taca-bronze.png'
+                  }
+                  alt={`Taça ${i + 1}`}
+                  width={64}
+                  height={64}
+                  className="mx-auto drop-shadow-md"
+                />
+                <p className="mt-2 text-lg font-semibold text-white">{data[i]?.name ?? '---'}</p>
+                <p className="text-sm text-gray-400">{getKm(data[i]).toLocaleString()} km</p>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Medalhas do Ranking Mensal */}
+{tab === 'monthly' && data.length >= 3 && (
+  <div className="flex justify-center gap-10 mb-6">
+    {[0, 1, 2].map((i) => (
+      <div key={i} className="text-center">
+        <Image
+          src={
+            i === 0
+              ? '/medal-ouro.png'
+              : i === 1
+              ? '/medal-prata.png'
+              : '/medal-bronze.png'
+          }
+          alt={`Medalha ${i + 1}`}
+          width={64}
+          height={64}
+          className="mx-auto drop-shadow-md"
+        />
+        <p className="mt-2 text-lg font-semibold text-white">{data[i]?.name ?? '---'}</p>
+        <p className="text-sm text-gray-400">{getKm(data[i]).toLocaleString()} km</p>
+      </div>
+    ))}
+  </div>
+)}
         <div className="bg-[#1e293b] rounded-2xl shadow-lg p-6 overflow-x-auto">
           <h2 className="text-xl font-semibold flex items-center gap-2 mb-4">
             <FaTrophy className="text-yellow-500" /> Ranking {TABS[tab]}
@@ -189,18 +228,18 @@ export default function RankingPage() {
                       <td className="py-2">
                         <div className="flex items-center gap-3">
                           <Image
-                            src={u.avatar || '/default.png'}
+                            src={u.avatar && u.avatar.trim() !== '' ? u.avatar : '/logo.jpg'}
                             alt={u.name}
-                            width={28}
-                            height={28}
+                            width={48}
+                            height={48}
                             className="rounded border border-gray-600 object-cover"
                           />
-<Link
-  href={`/perfil/${u.id}`}
-  className="text-white hover:text-blue-400 font-medium"
->
-  {u.name}
-</Link>
+                          <Link
+                            href={`/perfil/${u.id}`}
+                            className="text-white hover:text-blue-400 font-medium"
+                          >
+                            {u.name}
+                          </Link>
                         </div>
                       </td>
                       <td className="py-2 text-right">{getKm(u).toLocaleString()} km</td>

@@ -51,7 +51,7 @@ export async function GET(req: NextRequest) {
     return {
       id: user.id,
       name: user.name,
-      avatar: user.avatar || '/default-avatar.png',
+      avatar: user.avatar || '/logo.jpg',
       isApproved: user.isApproved,
       role: user.role,
       totalKm,
