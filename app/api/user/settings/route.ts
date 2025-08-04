@@ -1,8 +1,44 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { writeFile } from 'fs/promises'
+import path from 'path'
 import prisma from '@/lib/db'
+import { Prisma } from '@prisma/client'
+
+export async function GET(req: NextRequest) {
+  const token = req.headers.get('authorization')?.replace('Bearer ', '')
+
+  if (!token) {
+    return NextResponse.json({ error: 'Token ausente' }, { status: 401 })
+  }
+
+  const session = await prisma.session.findUnique({
+    where: { token },
+    include: { user: true },
+  })
+
+  const user = session?.user
+  if (!user) {
+    return NextResponse.json({ error: 'Sessão inválida' }, { status: 403 })
+  }
+
+  return NextResponse.json({
+    name: user.name ?? '',
+    email: user.email ?? '',
+    avatar: user.avatar ?? '',
+    socials: user.socials ?? {
+      youtube: '',
+      twitch: '',
+      tiktok: '',
+      facebook: '',
+      instagram: '',
+      twitter: '',
+    },
+  })
+}
 
 export async function PUT(req: NextRequest) {
   const token = req.headers.get('authorization')?.replace('Bearer ', '')
+
   if (!token) {
     return NextResponse.json({ error: 'Token ausente' }, { status: 401 })
   }
@@ -21,9 +57,9 @@ export async function PUT(req: NextRequest) {
 
   const name = formData.get('name')?.toString().trim()
   const email = formData.get('email')?.toString().trim()
-  const avatarFile = formData.get('avatar') as File | null
+  const avatar = formData.get('avatar') as File | null
 
-  const socials = {
+  const socials: Prisma.InputJsonValue = {
     youtube: formData.get('youtube')?.toString() ?? '',
     twitch: formData.get('twitch')?.toString() ?? '',
     tiktok: formData.get('tiktok')?.toString() ?? '',
@@ -36,16 +72,19 @@ export async function PUT(req: NextRequest) {
     name?: string
     email?: string
     avatar?: string
-    socials: Record<string, string>
+    socials: Prisma.InputJsonValue
   } = { socials }
 
   if (name) updateData.name = name
   if (email) updateData.email = email
 
-  if (avatarFile && avatarFile.size > 0) {
-    const buffer = Buffer.from(await avatarFile.arrayBuffer())
-    const mime = avatarFile.type || 'image/jpeg'
-    updateData.avatar = `data:${mime};base64,${buffer.toString('base64')}`
+  if (avatar && avatar.size > 0) {
+    const bytes = await avatar.arrayBuffer()
+    const buffer = Buffer.from(bytes)
+    const filename = `${user.id}.jpg`
+    const filepath = path.join(process.cwd(), 'public', 'avatars', filename)
+    await writeFile(filepath, buffer)
+    updateData.avatar = `/avatars/${filename}`
   }
 
   await prisma.user.update({
