@@ -81,17 +81,28 @@ export default function SettingsPage() {
     setSaving(true)
     setStatus(null)
 
+    const form = new FormData()
+    form.append('name', data.name)
+    form.append('email', data.email)
+
+    Object.entries(data.socials).forEach(([key, value]) => {
+      form.append(key, value)
+    })
+
+    if (avatarFile) {
+      const reader = new FileReader()
+      reader.onloadend = async () => {
+        form.append('avatar', reader.result as string)
+        await sendRequest(form, token)
+      }
+      reader.readAsDataURL(avatarFile)
+    } else {
+      await sendRequest(form, token)
+    }
+  }
+
+  const sendRequest = async (form: FormData, token: string) => {
     try {
-      const form = new FormData()
-      form.append('name', data.name)
-      form.append('email', data.email)
-
-      if (avatarFile) form.append('avatar', avatarFile)
-
-      Object.entries(data.socials).forEach(([key, value]) => {
-        form.append(key, value)
-      })
-
       const res = await fetch('/api/user/settings', {
         method: 'PUT',
         headers: { Authorization: `Bearer ${token}` },
