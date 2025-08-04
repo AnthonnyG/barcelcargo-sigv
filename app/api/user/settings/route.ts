@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/db'
+import { Prisma } from '@prisma/client'
 
 export async function GET(req: NextRequest) {
   const token = req.headers.get('authorization')?.replace('Bearer ', '')
@@ -55,21 +56,21 @@ export async function PUT(req: NextRequest) {
   const email = formData.get('email')?.toString().trim()
   const avatar = formData.get('avatar') as File | null
 
-  const socials = {
-    youtube: formData.get('youtube')?.toString() ?? '',
-    twitch: formData.get('twitch')?.toString() ?? '',
-    tiktok: formData.get('tiktok')?.toString() ?? '',
-    facebook: formData.get('facebook')?.toString() ?? '',
-    instagram: formData.get('instagram')?.toString() ?? '',
-    twitter: formData.get('twitter')?.toString() ?? '',
-  }
+const socials = {
+  youtube: formData.get('youtube')?.toString() ?? '',
+  twitch: formData.get('twitch')?.toString() ?? '',
+  tiktok: formData.get('tiktok')?.toString() ?? '',
+  facebook: formData.get('facebook')?.toString() ?? '',
+  instagram: formData.get('instagram')?.toString() ?? '',
+  twitter: formData.get('twitter')?.toString() ?? '',
+};
 
-  const updateData: {
-    name?: string
-    email?: string
-    avatar?: string
-    socials: any
-  } = { socials }
+const updateData: {
+  name?: string
+  email?: string
+  avatar?: string
+  socials: Record<string, string>
+} = { socials };
 
   if (name) updateData.name = name
   if (email) updateData.email = email
