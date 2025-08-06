@@ -58,8 +58,9 @@ export async function POST(req: Request) {
         origem,
         destino,
         distancia,
-        dano: typeof dano === 'number' ? dano : Number(dano) || 0,
-        velocidadeMax: typeof velocidadeMax === 'number' ? velocidadeMax : Number(velocidadeMax) || 0,
+        dano: dano || 0,
+velocidadeMax: velocidadeMax || 0,
+
         hora: new Date(hora),
         game // <-- Inserção do campo
       }
