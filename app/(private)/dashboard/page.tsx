@@ -121,6 +121,7 @@ export default function Dashboard() {
       {/* App Download + Live Map */}
       <div className="md:col-span-2 bg-[#1e293b] rounded-2xl shadow-lg p-6 flex flex-col justify-between gap-4">
         <h2 className="text-lg font-semibold flex items-center gap-2">
+          <a href="https://drive.google.com/file/d/1kHyyoTCK61iJKYaa7z4QMPOD-Msu-Wry/view?usp=sharing" download></a>
           <DownloadCloud size={20} /> Aplicação SIGV
         </h2>
 
