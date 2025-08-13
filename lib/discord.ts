@@ -14,7 +14,7 @@ function getTruckImage(camiao: string): string {
     'Mercedes Actros': 'https://upload.wikimedia.org/wikipedia/commons/4/47/Mercedes_Actros.jpg',
   };
 
-  return map[camiao] || 'https://i.imgur.com/Yf1VxS2.jpeg'; // imagem genérica de caminhão
+  return map[camiao] || 'https://i.imgur.com/Yf1VxS2.jpeg'; // imagem genérica
 }
 
 export async function enviarViagemDiscord(viagem: {
@@ -31,9 +31,10 @@ export async function enviarViagemDiscord(viagem: {
   if (!DISCORD_WEBHOOK_URL) return;
 
   const mensagem = {
+    content: '@everyone 🚚 **Nova Viagem Registrada!**',
     embeds: [
       {
-        title: `🚚 Nova Viagem Registrada (${viagem.game})`,
+        title: `🚚 Nova Viagem (${viagem.game})`,
         color: 0x2ecc71,
         thumbnail: { url: getTruckImage(viagem.camiao) },
         fields: [
