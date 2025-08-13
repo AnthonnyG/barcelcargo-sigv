@@ -31,7 +31,7 @@ export async function enviarViagemDiscord(viagem: {
   if (!DISCORD_WEBHOOK_URL) return;
 
   const mensagem = {
-    content: '@everyone 🚚 **Nova Viagem Registrada!**',
+    content: '@Motoristas @staff 🚚 **Nova Viagem Registrada!**',
     embeds: [
       {
         title: `🚚 Nova Viagem (${viagem.game})`,
