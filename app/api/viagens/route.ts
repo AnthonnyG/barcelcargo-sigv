@@ -25,7 +25,7 @@ export async function GET() {
 // POST → Recebe dados da app e grava no banco
 export async function POST(req: Request) {
   try {
-    const body = await req.json()
+    const body = await req.json();
 
     const {
       motoristaId,
@@ -36,19 +36,11 @@ export async function POST(req: Request) {
       dano,
       velocidadeMax,
       hora,
-      game // <-- Novo campo
-    } = body
+      game
+    } = body;
 
-    if (
-      !motoristaId ||
-      !camiao ||
-      !origem ||
-      !destino ||
-      !distancia ||
-      !hora ||
-      !game // <-- Validação do novo campo
-    ) {
-      return NextResponse.json({ error: 'Dados incompletos.' }, { status: 400 })
+    if (!motoristaId || !camiao || !origem || !destino || !distancia || !hora || !game) {
+      return NextResponse.json({ error: 'Dados incompletos.' }, { status: 400 });
     }
 
     const novaViagem = await prisma.viagem.create({
@@ -61,13 +53,21 @@ export async function POST(req: Request) {
         dano: typeof dano === 'number' ? dano : Number(dano) || 0,
         velocidadeMax: typeof velocidadeMax === 'number' ? velocidadeMax : Number(velocidadeMax) || 0,
         hora: new Date(hora),
-        game // <-- Inserção do campo
+        game
+      },
+      include: {
+        motorista: { select: { name: true } }
       }
-    })
+    });
 
-    return NextResponse.json(novaViagem)
+    // Enviar para Discord
+    import('@/lib/discord').then(({ enviarViagemDiscord }) =>
+      enviarViagemDiscord(novaViagem)
+    );
+
+    return NextResponse.json(novaViagem);
   } catch (error) {
-    console.error('Erro ao registar nova viagem:', error)
-    return NextResponse.json({ error: 'Erro ao registar viagem' }, { status: 500 })
+    console.error('Erro ao registar nova viagem:', error);
+    return NextResponse.json({ error: 'Erro ao registar viagem' }, { status: 500 });
   }
 }
