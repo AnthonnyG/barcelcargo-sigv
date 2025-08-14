@@ -125,7 +125,7 @@ export default function Dashboard() {
         </h2>
 
         <div className="flex flex-col gap-3 w-full">
-          <a href="https://drive.google.com/file/d/1MCiGRfk02nGtQmptgninv2e7ifX1nV3v/view?usp=sharing" className="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded text-center">
+          <a href="https://drive.google.com/file/d/1UwoXU5RaRO6i2hnNfjWDecfINjrUHvY4/view?usp=sharing" className="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded text-center">
             Download App
           </a>
           <a href="#" className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded text-center">
