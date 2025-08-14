@@ -16,22 +16,21 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: 'Motorista não informado.' }, { status: 400 });
     }
 
-    // Filtros dinâmicos
-    const filtros: any = {
-      motoristaId,
-      ...(game ? { game: game as any } : {})
-    };
+    const filtros: any = { motoristaId };
+
+    if (game) {
+      filtros.game = game as any;
+    }
 
     if (ano) {
       const anoNum = Number(ano);
-      const mesNum = mes ? Number(mes) - 1 : 0; // Mês começa em 0 no JS
-      const inicio = new Date(anoNum, mesNum, 1);
-      const fim = mes ? new Date(anoNum, mesNum + 1, 0, 23, 59, 59) : new Date(anoNum, 11, 31, 23, 59, 59);
+      const mesNum = mes ? Number(mes) - 1 : 0;
+      const inicio = new Date(anoNum, mes ? mesNum : 0, 1);
+      const fim = mes
+        ? new Date(anoNum, mesNum + 1, 0, 23, 59, 59)
+        : new Date(anoNum, 11, 31, 23, 59, 59);
 
-      filtros.data = {
-        gte: inicio,
-        lte: fim
-      };
+      filtros.data = { gte: inicio, lte: fim };
     }
 
     const viagens = await prisma.viagem.findMany({
