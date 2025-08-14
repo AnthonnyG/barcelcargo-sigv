@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
+import { Prisma, Game } from '@prisma/client'; // ⬅️ importa o enum Game e os tipos
 
 export const dynamic = 'force-dynamic';
 
@@ -16,10 +17,11 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: 'Motorista não informado.' }, { status: 400 });
     }
 
-    const filtros: any = { motoristaId };
+    // Tipagem correta usando o tipo do Prisma
+    const filtros: Prisma.ViagemWhereInput = { motoristaId };
 
     if (game) {
-      filtros.game = game as any;
+      filtros.game = game as Game; // agora tipado certo
     }
 
     if (ano) {
