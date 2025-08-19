@@ -46,6 +46,8 @@ model Viagem {
   hora          DateTime
   data          DateTime @default(now())
   game          Game
+  carga         String?
+  lucro         String?
   motorista     User     @relation(fields: [motoristaId], references: [id])
 }
 

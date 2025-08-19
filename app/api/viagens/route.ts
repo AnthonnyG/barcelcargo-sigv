@@ -16,18 +16,20 @@ export async function POST(req: Request) {
     const origem = embed.fields?.find((f: any) => f.name.includes("A partir"))?.value || "---";
     const destino = embed.fields?.find((f: any) => f.name.includes("Para"))?.value || "---";
     const carga = embed.fields?.find((f: any) => f.name.includes("Carga"))?.value || "";
-    const distancia = parseInt(embed.fields?.find((f: any) => f.name.includes("Distância"))?.value || "0");
+    const distancia = parseInt(embed.fields?.find((f: any) => f.name.includes("Distância"))?.value.replace(/\D/g, "") || "0");
     const lucro = embed.fields?.find((f: any) => f.name.includes("Lucro"))?.value || "";
     const camiao = embed.fields?.find((f: any) => f.name.includes("Caminhão"))?.value || "";
 
     // Salvar no banco
     const viagem = await prisma.viagem.create({
       data: {
-        motoristaId: motorista, // 🔹 idealmente mapear motorista pelo nome/email
+        motoristaId: motorista, // 🔹 ideal: mapear pelo ID real, por enquanto salva nome
         camiao,
         origem,
         destino,
         distancia,
+        carga,
+        lucro,
         dano: 0,
         velocidadeMax: 0,
         hora: new Date(),
