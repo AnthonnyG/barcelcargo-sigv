@@ -1,73 +1,43 @@
-import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/db'
+// app/api/trucksbook/webhook/route.ts
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/db";
 
-export const dynamic = 'force-dynamic'
-
-// GET → Lista todas as viagens (já implementado)
-export async function GET() {
-  try {
-    const viagens = await prisma.viagem.findMany({
-      orderBy: { data: 'desc' },
-      include: {
-        motorista: {
-          select: { id: true, name: true, email: true }
-        }
-      }
-    })
-
-    return NextResponse.json(viagens)
-  } catch (error) {
-    console.error('Erro ao buscar viagens:', error)
-    return NextResponse.json({ error: 'Erro ao buscar viagens' }, { status: 500 })
-  }
-}
-
-// POST → Recebe dados da app e grava no banco
 export async function POST(req: Request) {
   try {
     const body = await req.json();
 
-    const {
-      motoristaId,
-      camiao,
-      origem,
-      destino,
-      distancia,
-      dano,
-      velocidadeMax,
-      hora,
-      game
-    } = body;
-
-    if (!motoristaId || !camiao || !origem || !destino || !distancia || !hora || !game) {
-      return NextResponse.json({ error: 'Dados incompletos.' }, { status: 400 });
+    const embed = body.embeds?.[0];
+    if (!embed) {
+      return NextResponse.json({ error: "Payload inválido" }, { status: 400 });
     }
 
-    const novaViagem = await prisma.viagem.create({
+    // Extrair dados do embed
+    const motorista = embed.author?.name || "Desconhecido";
+    const origem = embed.fields?.find((f: any) => f.name.includes("A partir"))?.value || "---";
+    const destino = embed.fields?.find((f: any) => f.name.includes("Para"))?.value || "---";
+    const carga = embed.fields?.find((f: any) => f.name.includes("Carga"))?.value || "";
+    const distancia = parseInt(embed.fields?.find((f: any) => f.name.includes("Distância"))?.value || "0");
+    const lucro = embed.fields?.find((f: any) => f.name.includes("Lucro"))?.value || "";
+    const camiao = embed.fields?.find((f: any) => f.name.includes("Caminhão"))?.value || "";
+
+    // Salvar no banco
+    const viagem = await prisma.viagem.create({
       data: {
-        motoristaId,
+        motoristaId: motorista, // 🔹 idealmente mapear motorista pelo nome/email
         camiao,
         origem,
         destino,
         distancia,
-        dano: typeof dano === 'number' ? dano : Number(dano) || 0,
-        velocidadeMax: typeof velocidadeMax === 'number' ? velocidadeMax : Number(velocidadeMax) || 0,
-        hora: new Date(hora),
-        game
+        dano: 0,
+        velocidadeMax: 0,
+        hora: new Date(),
+        game: "ETS2",
       },
-      include: {
-        motorista: { select: { name: true } }
-      }
     });
 
-    // Enviar para Discord
-    import('@/lib/discord').then(({ enviarViagemDiscord }) =>
-      enviarViagemDiscord(novaViagem)
-    );
-
-    return NextResponse.json(novaViagem);
-  } catch (error) {
-    console.error('Erro ao registar nova viagem:', error);
-    return NextResponse.json({ error: 'Erro ao registar viagem' }, { status: 500 });
+    return NextResponse.json(viagem);
+  } catch (err) {
+    console.error("Erro no webhook:", err);
+    return NextResponse.json({ error: "Erro no servidor" }, { status: 500 });
   }
 }
