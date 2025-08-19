@@ -2,49 +2,57 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 
-interface DiscordEmbedField {
-  name: string;
-  value: string;
-  inline?: boolean;
-}
-
-interface DiscordEmbed {
-  author?: { name: string };
-  fields?: DiscordEmbedField[];
-}
-
-interface DiscordWebhookPayload {
-  embeds?: DiscordEmbed[];
-}
-
 export async function POST(req: Request) {
   try {
-    const body: DiscordWebhookPayload = await req.json();
+    const body = await req.json();
 
     const embed = body.embeds?.[0];
     if (!embed) {
       return NextResponse.json({ error: "Payload inválido" }, { status: 400 });
     }
 
-    const fields = embed.fields ?? [];
+    // Extrair dados do embed do TrucksBook
+    const motoristaNome = embed.author?.name || "Desconhecido";
+    const origem =
+      embed.fields?.find((f: { name: string }) => f.name.includes("A partir"))
+        ?.value || "---";
+    const destino =
+      embed.fields?.find((f: { name: string }) => f.name.includes("Para"))
+        ?.value || "---";
+    const carga =
+      embed.fields?.find((f: { name: string }) => f.name.includes("Carga"))
+        ?.value || "";
+    const distancia = parseInt(
+      embed.fields
+        ?.find((f: { name: string }) => f.name.includes("Distância"))
+        ?.value.replace(/\D/g, "") || "0"
+    );
+    const lucro =
+      embed.fields?.find((f: { name: string }) => f.name.includes("Lucro"))
+        ?.value || "";
+    const camiao =
+      embed.fields?.find((f: { name: string }) => f.name.includes("Caminhão"))
+        ?.value || "";
 
-    // 🔹 Helper para procurar field por nome
-    const getFieldValue = (key: string): string =>
-      fields.find((f) => f.name.includes(key))?.value || "";
+    // Procurar motorista real no DB
+    const user = await prisma.user.findUnique({
+      where: { name: motoristaNome },
+    });
 
-    // Extrair dados
-    const motorista = embed.author?.name || "Desconhecido";
-    const origem = getFieldValue("A partir") || "---";
-    const destino = getFieldValue("Para") || "---";
-    const carga = getFieldValue("Carga");
-    const distancia = parseInt(getFieldValue("Distância").replace(/\D/g, "")) || 0;
-    const lucro = getFieldValue("Lucro");
-    const camiao = getFieldValue("Caminhão");
+    if (!user) {
+      console.warn(
+        `Motorista "${motoristaNome}" não encontrado no site, ignorando viagem.`
+      );
+      return NextResponse.json(
+        { error: "Motorista não registado no site" },
+        { status: 404 }
+      );
+    }
 
-    // Salvar no banco
+    // Salvar viagem associada ao motorista real
     const viagem = await prisma.viagem.create({
       data: {
-        motoristaId: motorista, // ⚠️ depois podes mapear para o ID real
+        motoristaId: user.id,
         camiao,
         origem,
         destino,
