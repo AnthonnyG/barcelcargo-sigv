@@ -2,28 +2,49 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 
+interface DiscordEmbedField {
+  name: string;
+  value: string;
+  inline?: boolean;
+}
+
+interface DiscordEmbed {
+  author?: { name: string };
+  fields?: DiscordEmbedField[];
+}
+
+interface DiscordWebhookPayload {
+  embeds?: DiscordEmbed[];
+}
+
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
+    const body: DiscordWebhookPayload = await req.json();
 
     const embed = body.embeds?.[0];
     if (!embed) {
       return NextResponse.json({ error: "Payload inválido" }, { status: 400 });
     }
 
-    // Extrair dados do embed
+    const fields = embed.fields ?? [];
+
+    // 🔹 Helper para procurar field por nome
+    const getFieldValue = (key: string): string =>
+      fields.find((f) => f.name.includes(key))?.value || "";
+
+    // Extrair dados
     const motorista = embed.author?.name || "Desconhecido";
-    const origem = embed.fields?.find((f: any) => f.name.includes("A partir"))?.value || "---";
-    const destino = embed.fields?.find((f: any) => f.name.includes("Para"))?.value || "---";
-    const carga = embed.fields?.find((f: any) => f.name.includes("Carga"))?.value || "";
-    const distancia = parseInt(embed.fields?.find((f: any) => f.name.includes("Distância"))?.value.replace(/\D/g, "") || "0");
-    const lucro = embed.fields?.find((f: any) => f.name.includes("Lucro"))?.value || "";
-    const camiao = embed.fields?.find((f: any) => f.name.includes("Caminhão"))?.value || "";
+    const origem = getFieldValue("A partir") || "---";
+    const destino = getFieldValue("Para") || "---";
+    const carga = getFieldValue("Carga");
+    const distancia = parseInt(getFieldValue("Distância").replace(/\D/g, "")) || 0;
+    const lucro = getFieldValue("Lucro");
+    const camiao = getFieldValue("Caminhão");
 
     // Salvar no banco
     const viagem = await prisma.viagem.create({
       data: {
-        motoristaId: motorista, // 🔹 ideal: mapear pelo ID real, por enquanto salva nome
+        motoristaId: motorista, // ⚠️ depois podes mapear para o ID real
         camiao,
         origem,
         destino,
