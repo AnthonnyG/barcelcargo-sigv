@@ -29,9 +29,6 @@ type Viagem = {
   origem: string
   destino: string
   distancia: number
-  dano: number
-  velocidadeMax: number
-  hora: string
 }
 
 type DashboardData = {
@@ -125,6 +122,9 @@ export default function Dashboard() {
         </h2>
 
         <div className="flex flex-col gap-3 w-full">
+          <a href="https://drive.google.com/file/d/1ilUucRbGeiS_rNK4Gu-8B08IL7xCXMMW/view?usp=sharing" className="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded text-center">
+            Download App
+          </a>
           <a href="#" className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded text-center">
             Ver Mapa
           </a>
@@ -160,9 +160,6 @@ export default function Dashboard() {
                     <td>{v.origem}</td>
                     <td>{v.destino}</td>
                     <td>{v.distancia} km</td>
-                    <td>{v.dano}%</td>
-                    <td>{v.velocidadeMax} km/h</td>
-                    <td>{v.hora}</td>
                   </tr>
                 ))
               )}
