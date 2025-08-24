@@ -19,13 +19,13 @@ export async function enviarViagemDiscord(viagem: {
         color: 0x2ecc71,
         icon: "🚛",
         title: "Euro Truck Simulator 2",
-        thumbnail: "https://barcelcargo.pt/ETS2.png", // logo ETS2
+        thumbnail: "https://barcelcargo.pt/ETS2.png",
       }
     : {
         color: 0xe67e22,
         icon: "🚚",
         title: "American Truck Simulator",
-        thumbnail: "https://barcelcargo.pt/ATS.png", // logo ATS
+        thumbnail: "https://barcelcargo.pt/ATS.png",
       };
 
   const embed = {
@@ -36,16 +36,21 @@ export async function enviarViagemDiscord(viagem: {
       url: gameConfig.thumbnail,
     },
     fields: [
+      // 👨 Motorista e 🚚 Camião na mesma linha
       { name: "👨 Motorista", value: viagem.motorista, inline: true },
-      { name: "🚚 Camião", value: viagem.camiao, inline: true },
+      { name: "🚚 Camião", value: viagem.camiao || "—", inline: true },
+
+      // 🏁 Origem e 🎯 Destino na mesma linha
       { name: "🏁 Origem", value: viagem.origem, inline: true },
       { name: "🎯 Destino", value: viagem.destino, inline: true },
-      { name: "📏 Distância", value: `${viagem.distancia} km`, inline: true },
+
+      // 📏 Distância sozinho em baixo
+      { name: "📏 Distância", value: `${viagem.distancia} km`, inline: false },
     ],
     timestamp: new Date().toISOString(),
     footer: {
       text: "BarcelCargo | Sistema Automático",
-      icon_url: "https://i.imgur.com/ZU7gYvj.png", // logo da empresa se quiseres
+      icon_url: "https://i.imgur.com/ZU7gYvj.png",
     },
   };
 
