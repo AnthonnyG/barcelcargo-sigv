@@ -1,4 +1,12 @@
 // lib/discord.ts
+function parseFlags(text: string): string {
+  if (!text) return "---";
+  return text.replace(/:flag_([a-z]{2}):/gi, (_, code) => {
+    const base = code.toUpperCase();
+    return String.fromCodePoint(...[...base].map(c => 0x1f1e6 - 65 + c.charCodeAt(0)));
+  }).trim();
+}
+
 export async function enviarViagemDiscord(viagem: {
   motorista: string;
   camiao: string;
@@ -13,7 +21,6 @@ export async function enviarViagemDiscord(viagem: {
     return;
   }
 
-  // 🎨 Config ETS2 / ATS
   const gameConfig = viagem.game === "ETS2"
     ? {
         color: 0x2ecc71,
@@ -36,15 +43,13 @@ export async function enviarViagemDiscord(viagem: {
       url: gameConfig.thumbnail,
     },
     fields: [
-      // 👨 Motorista e 🚚 Camião na mesma linha
       { name: "👨 Motorista", value: viagem.motorista, inline: true },
       { name: "🚚 Camião", value: viagem.camiao || "—", inline: true },
 
-      // 🏁 Origem e 🎯 Destino na mesma linha
-      { name: "🏁 Origem", value: viagem.origem, inline: true },
-      { name: "🎯 Destino", value: viagem.destino, inline: true },
+      // Origem e destino com bandeiras reais
+      { name: "🏁 Origem", value: parseFlags(viagem.origem), inline: true },
+      { name: "🎯 Destino", value: parseFlags(viagem.destino), inline: true },
 
-      // 📏 Distância sozinho em baixo
       { name: "📏 Distância", value: `${viagem.distancia} km`, inline: false },
     ],
     timestamp: new Date().toISOString(),
