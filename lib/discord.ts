@@ -19,13 +19,13 @@ export async function enviarViagemDiscord(viagem: {
         color: 0x2ecc71,
         icon: "🚛",
         title: "Euro Truck Simulator 2",
-        thumbnail: "https://i.imgur.com/vmZ9p6Y.png", // logo ETS2
+        thumbnail: "https://barcelcargo.pt/ETS2.png", // logo ETS2
       }
     : {
         color: 0xe67e22,
         icon: "🚚",
         title: "American Truck Simulator",
-        thumbnail: "https://i.imgur.com/Qu1jM4K.png", // logo ATS
+        thumbnail: "https://barcelcargo.pt/ATS.png", // logo ATS
       };
 
   const embed = {
