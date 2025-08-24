@@ -125,9 +125,6 @@ export default function Dashboard() {
         </h2>
 
         <div className="flex flex-col gap-3 w-full">
-          <a href="https://drive.google.com/file/d/1ilUucRbGeiS_rNK4Gu-8B08IL7xCXMMW/view?usp=sharing" className="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded text-center">
-            Download App
-          </a>
           <a href="#" className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded text-center">
             Ver Mapa
           </a>
@@ -148,9 +145,6 @@ export default function Dashboard() {
                 <th>Origem</th>
                 <th>Destino</th>
                 <th>Distância</th>
-                <th>Dano</th>
-                <th>Velocidade</th>
-                <th>Hora</th>
               </tr>
             </thead>
             <tbody className="text-gray-100">
