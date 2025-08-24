@@ -14,7 +14,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Payload inválido" }, { status: 400 });
     }
 
-    // 🔹 Remove bandeiras tipo ":flag_it:"
+    // 🔹 Remove bandeiras tipo ":flag_us:" etc
     const cleanText = (txt: string | undefined): string =>
       txt ? txt.replace(/:flag_[a-z_]+:/gi, "").trim() : "---";
 
@@ -22,44 +22,50 @@ export async function POST(req: Request) {
     const motoristaNome = embed.author?.name || "Desconhecido";
     const origem = cleanText(embed.fields?.find((f) => f.name.includes("A partir"))?.value);
     const destino = cleanText(embed.fields?.find((f) => f.name.includes("Para"))?.value);
-// Tenta apanhar camião diretamente
-let camiao = embed.fields?.find((f) =>
-  f.name.toLowerCase().includes("caminhão") ||
-  f.name.toLowerCase().includes("camiao") ||
-  f.name.toLowerCase().includes("truck") ||
-  f.name.toLowerCase().includes("veículo")
-)?.value || "";
 
-// Se não achou, tenta buscar dentro de "Detalhes"
-if (!camiao) {
-  const detalhes = embed.fields?.find((f) =>
-    f.name.toLowerCase().includes("detalhes")
-  )?.value;
+    // 🚚 Camião (procura em vários campos + fallback nos detalhes)
+    let camiao = embed.fields?.find((f) =>
+      f.name.toLowerCase().includes("caminhão") ||
+      f.name.toLowerCase().includes("camiao") ||
+      f.name.toLowerCase().includes("truck") ||
+      f.name.toLowerCase().includes("veículo")
+    )?.value || "";
 
-  if (detalhes) {
-    const match = detalhes.match(/Cami[aã]o?:\s*([^\|]+)/i); // pega até ao próximo |
-    if (match) {
-      camiao = match[1].trim();
+    if (!camiao) {
+      const detalhes = embed.fields?.find((f) =>
+        f.name.toLowerCase().includes("detalhes")
+      )?.value;
+
+      if (detalhes) {
+        const match = detalhes.match(/Cami[aã]o?:\s*([^\|]+)/i);
+        if (match) {
+          camiao = cleanText(match[1].trim());
+        }
+      }
+    } else {
+      camiao = cleanText(camiao);
     }
-  }
-}
 
-// Distância: pode vir como "[Real] – 644 km" ou "[WoT] – 650 km"
-const distanciaField = embed.fields?.find(
-  (f) => f.value.toLowerCase().includes("km")
-)?.value;
+    // 📏 Distância (corrigido para pegar só números antes de "mi" ou "km")
+    const distanciaField = embed.fields?.find((f) =>
+      f.value.toLowerCase().includes("km") || f.value.toLowerCase().includes("mi")
+    )?.value;
 
-const distancia = distanciaField
-  ? parseInt(distanciaField.replace(/\D/g, "")) || 0
-  : 0;
+    let distancia = 0;
+    if (distanciaField) {
+      const match = distanciaField.match(/(\d+)\s*(km|mi)/i);
+      if (match) {
+        distancia = parseInt(match[1], 10);
+      }
+    }
 
-    // Procurar motorista no DB
+    // 🔍 Procurar motorista no DB
     const user = await prisma.user.findUnique({ where: { name: motoristaNome } });
     if (!user) {
       return NextResponse.json({ error: "Motorista não registado no site" }, { status: 404 });
     }
 
-    // Gravar viagem
+    // 💾 Gravar viagem
     const viagem = await prisma.viagem.create({
       data: {
         motoristaId: user.id,
@@ -71,7 +77,7 @@ const distancia = distanciaField
       },
     });
 
-    // Reenviar para o Discord
+    // 📡 Reenviar para o Discord
     await enviarViagemDiscord({
       motorista: user.name,
       camiao,
@@ -83,7 +89,7 @@ const distancia = distanciaField
 
     return NextResponse.json(viagem);
   } catch (err) {
-    console.error("Erro ETS2:", err);
+    console.error("Erro ATS:", err);
     return NextResponse.json({ error: "Erro no servidor" }, { status: 500 });
   }
 }

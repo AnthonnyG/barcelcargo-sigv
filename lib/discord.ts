@@ -55,7 +55,7 @@ export async function enviarViagemDiscord(viagem: {
     timestamp: new Date().toISOString(),
     footer: {
       text: "BarcelCargo | Sistema Automático",
-      icon_url: "https://i.imgur.com/ZU7gYvj.png",
+      icon_url: "https://barcelcargo.pt/logo.jpg",
     },
   };
 
