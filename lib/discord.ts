@@ -47,7 +47,7 @@ export async function enviarViagemDiscord(viagem: {
       { name: "🚚 Camião", value: viagem.camiao || "—", inline: true },
 
       // Origem e destino com bandeiras reais
-      { name: "🏁 Origem", value: parseFlags(viagem.origem), inline: true },
+      { name: "🏁 Origem", value: parseFlags(viagem.origem), inline: false },
       { name: "🎯 Destino", value: parseFlags(viagem.destino), inline: true },
 
       { name: "📏 Distância", value: `${viagem.distancia} km`, inline: false },
