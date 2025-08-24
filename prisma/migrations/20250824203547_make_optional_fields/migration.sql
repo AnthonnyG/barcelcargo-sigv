@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "public"."Viagem" ALTER COLUMN "dano" DROP NOT NULL,
+ALTER COLUMN "velocidadeMax" DROP NOT NULL,
+ALTER COLUMN "hora" DROP NOT NULL;

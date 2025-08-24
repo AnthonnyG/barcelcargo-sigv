@@ -41,9 +41,9 @@ model Viagem {
   origem        String
   destino       String
   distancia     Int
-  dano          Int
-  velocidadeMax Int
-  hora          DateTime
+  dano          Int?
+  velocidadeMax Int?
+  hora          DateTime?
   data          DateTime @default(now())
   game          Game
   carga         String?
