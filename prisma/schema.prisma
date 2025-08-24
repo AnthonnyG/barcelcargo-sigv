@@ -43,7 +43,7 @@ model Viagem {
   distancia     Int
   dano          Int?
   velocidadeMax Int?
-  hora          DateTime?
+  hora          DateTime @default(now())
   data          DateTime @default(now())
   game          Game
   carga         String?
