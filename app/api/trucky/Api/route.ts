@@ -73,7 +73,7 @@ export async function POST(req: Request) {
       dano: viagemData.dano,
       velocidadeMax: viagemData.velocidadeMax,
       data: viagemData.hora,
-      game: viagemData.game,
+      game: 
     });
 
     return NextResponse.json(viagem);
