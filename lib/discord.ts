@@ -1,19 +1,26 @@
 // lib/discord.ts
 function parseFlags(text: string): string {
   if (!text) return "---";
-  return text.replace(/:flag_([a-z]{2}):/gi, (_, code) => {
-    const base = code.toUpperCase();
-    return String.fromCodePoint(...[...base].map(c => 0x1f1e6 - 65 + c.charCodeAt(0)));
-  }).trim();
+  return text
+    .replace(/:flag_([a-z]{2}):/gi, (_, code) => {
+      const base = code.toUpperCase();
+      return String.fromCodePoint(
+        ...[...base].map(c => 0x1f1e6 - 65 + c.charCodeAt(0))
+      );
+    })
+    .trim();
 }
 
 export async function enviarViagemDiscord(viagem: {
   motorista: string;
+  game: "ETS2" | "ATS";
   camiao: string;
   origem: string;
   destino: string;
   distancia: number;
-  game: "ETS2" | "ATS";
+  dano: number;
+  velocidadeMax: number;
+  data: Date;
 }) {
   const url = process.env.DISCORD_WEBHOOK_URL;
   if (!url) {
@@ -21,36 +28,36 @@ export async function enviarViagemDiscord(viagem: {
     return;
   }
 
-  const gameConfig = viagem.game === "ETS2"
-    ? {
-        color: 0x2ecc71,
-        icon: "🚛",
-        title: "Euro Truck Simulator 2",
-        thumbnail: "https://barcelcargo.pt/ETS2.png",
-      }
-    : {
-        color: 0xe67e22,
-        icon: "🚚",
-        title: "American Truck Simulator",
-        thumbnail: "https://barcelcargo.pt/ATS.png",
-      };
+  const gameConfig =
+    viagem.game === "ETS2"
+      ? {
+          color: 0x2ecc71,
+          icon: "🚛",
+          title: "Euro Truck Simulator 2",
+          thumbnail: "https://barcelcargo.pt/ETS2.png",
+        }
+      : {
+          color: 0xe67e22,
+          icon: "🚚",
+          title: "American Truck Simulator",
+          thumbnail: "https://barcelcargo.pt/ATS.png",
+        };
 
   const embed = {
     title: `${gameConfig.icon} ${gameConfig.title}`,
     description: `📦 Nova viagem registada no sistema`,
     color: gameConfig.color,
-    thumbnail: {
-      url: gameConfig.thumbnail,
-    },
+    thumbnail: { url: gameConfig.thumbnail },
     fields: [
       { name: "👨 Motorista", value: viagem.motorista, inline: true },
+      { name: "🕹️ Jogo", value: viagem.game, inline: true },
       { name: "🚚 Camião", value: viagem.camiao || "—", inline: true },
-
-      // Origem e destino com bandeiras reais
       { name: "🏁 Origem", value: parseFlags(viagem.origem), inline: false },
       { name: "🎯 Destino", value: parseFlags(viagem.destino), inline: true },
-
-      { name: "📏 Distância", value: `${viagem.distancia} km`, inline: false },
+      { name: "📏 Distância", value: `${viagem.distancia} km`, inline: true },
+      { name: "💥 Dano", value: `${viagem.dano}%`, inline: true },
+      { name: "⚡ Velocidade Máx.", value: `${viagem.velocidadeMax} km/h`, inline: true },
+      { name: "🗓️ Data", value: viagem.data.toLocaleString("pt-PT"), inline: false },
     ],
     timestamp: new Date().toISOString(),
     footer: {
