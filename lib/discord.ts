@@ -1,4 +1,6 @@
 // lib/discord.ts
+import { Game } from "@prisma/client"; // usa o enum do Prisma
+
 function parseFlags(text: string): string {
   if (!text) return "---";
   return text
@@ -13,7 +15,7 @@ function parseFlags(text: string): string {
 
 export async function enviarViagemDiscord(viagem: {
   motorista: string;
-  game: "ETS2" | "ATS";
+  game: Game; // agora tipado pelo Prisma
   camiao: string;
   origem: string;
   destino: string;
@@ -49,7 +51,7 @@ export async function enviarViagemDiscord(viagem: {
     color: gameConfig.color,
     thumbnail: { url: gameConfig.thumbnail },
     fields: [
-      { name: "👨 Motorista", value: viagem.motorista, inline: true },
+      { name: "👨 Motorista", value: viagem.motorista || "—", inline: true },
       { name: "🕹️ Jogo", value: viagem.game, inline: true },
       { name: "🚚 Camião", value: viagem.camiao || "—", inline: true },
       { name: "🏁 Origem", value: parseFlags(viagem.origem), inline: false },
